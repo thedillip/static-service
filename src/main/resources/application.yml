@@ -1,0 +1,18 @@
+server:
+  port: 5000
+  
+spring:  mail:    host: smtp.gmail.com
+    port: 587
+    username: thedillip1@gmail.com
+    password: ierosibqhhohxdaq
+    name: Dillip K Sahoo
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+            
+swagger-ui:
+  url: http://staticservice-env.eba-mpqng2se.ap-northeast-1.elasticbeanstalk.com/swagger-ui.html
