@@ -8,7 +8,7 @@ RUN mvn clean package -DskipTests
 #
 # Package stage
 #
-FROM openjdk:11-jdk-slim
+FROM openjdk:11
 COPY --from=build /target/static-service.jar static-service.jar
 # ENV PORT=8080
 EXPOSE 8080
