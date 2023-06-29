@@ -2,6 +2,8 @@ package com.dillip.api.service;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.dillip.api.request.ContactDetails;
 import com.dillip.api.request.WeightSlipRequest;
 import com.dillip.api.response.MediaFile;
@@ -15,5 +17,7 @@ public interface StaticService {
 	String sendEmail(ContactDetails contact);
 
 	String startReportApi();
+	
+	void getDocument(WeightSlipRequest weightSlipRequest, HttpServletResponse response) throws IOException, JRException;
 
 }

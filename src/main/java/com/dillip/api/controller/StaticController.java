@@ -1,6 +1,9 @@
 package com.dillip.api.controller;
 
 import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,8 @@ public class StaticController {
 	
 	@Autowired
 	private StaticService staticService;
+	@Autowired
+	private HttpServletResponse response;
 	
 	@Operation(summary = "Welcome Message")
 	@GetMapping(path = "/")
@@ -41,7 +46,7 @@ public class StaticController {
 			reMessage = staticService.startReportApi();
 
 			if (reMessage != null) {
-				message = "Heroku Server is UP";
+				message = "Server is UP";
 				status = HttpStatus.OK;
 				log.info("########## API is UP ##########");
 			} else {
@@ -109,5 +114,37 @@ public class StaticController {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 		return new ResponseEntity<>(new ApiEntity<String>(message, response), httpHeaders, status);
+	}
+	
+	@Operation(summary = "Download Weight Slip in excel")
+	@PostMapping(path = "/excel")
+	public void generateReportInExcel(
+			@Parameter(name = "in_weightSlipRequest", description = "WeightSlipRequest", required = true) @RequestBody WeightSlipRequest weightSlipRequest)
+			throws JRException, IOException {
+		
+		staticService.getDocument(weightSlipRequest, response);
+		
+//		HttpStatus status = null;
+//		HttpHeaders httpHeaders = new HttpHeaders();
+//		String message = null;
+//		MediaFile response = null;
+//		log.info("########## Hitting generateReport() in Controller ########### :: WeightSlipRequest :: "
+//				+ weightSlipRequest);
+//		try {
+//			response = staticService.exportReport(weightSlipRequest);
+//
+//			if (response != null) {
+//				message = "Weight Slip has been generated Successfully";
+//				status = HttpStatus.OK;
+//			} else {
+//				message = StaticServiceConstant.ERR_MSG;
+//				status = HttpStatus.BAD_REQUEST;
+//			}
+//		} catch (Exception e) {
+//			log.info("########## Exception Occured ########## " + e);
+//			message = e.getMessage();
+//			status = HttpStatus.INTERNAL_SERVER_ERROR;
+//		}
+//		return new ResponseEntity<>(new ApiEntity<MediaFile>(message, response), httpHeaders, status);
 	}
 }

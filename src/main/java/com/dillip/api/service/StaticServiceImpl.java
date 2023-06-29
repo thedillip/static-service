@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
+
 import com.dillip.api.request.ContactDetails;
 import com.dillip.api.request.WeightSlipRequest;
 import com.dillip.api.response.MediaFile;
@@ -30,6 +33,10 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
 @Service
 @Slf4j
@@ -37,9 +44,6 @@ public class StaticServiceImpl implements StaticService {
 	
 	@Autowired
 	private JavaMailSender mailSender;
-	
-	@Value("${swagger-ui.url}")
-	private String swaggerUiUrl;
 	@Value("${spring.mail.username}")
 	private String springMailUserName;
 	@Value("${spring.mail.name}")
@@ -73,6 +77,8 @@ public class StaticServiceImpl implements StaticService {
 
 		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 		byte[] data = JasperExportManager.exportReportToPdf(jasperPrint);
+		
+//		JasperExportManager
 
 		HttpHeaders headers = new HttpHeaders();
 
@@ -143,7 +149,45 @@ public class StaticServiceImpl implements StaticService {
 	@Override
 	public String startReportApi() {
 		log.info("########## API has been Started :: Status :: UP :: SUCCESS ##########");
-		return swaggerUiUrl;
+		return StaticServiceConstant.SUCCESS_MSG;
 	}
+	
+	
+	public void getDocument(WeightSlipRequest weightSlipRequest, HttpServletResponse response) throws IOException, JRException {
+		log.info("########## Hitting exportReport() method in ServiceImpl Layer ##########");
+
+		String fileName = "Weight Slip_" + weightSlipRequest.getVehicleNumber().toUpperCase() + "_" +LocalDateTime.now().toString() + ".pdf";
+
+		List<WeightSlipRequest> list = new ArrayList<>();
+		list.add(new WeightSlipRequest());
+
+		String netWeight = String.valueOf(Integer.parseInt(weightSlipRequest.getGrossWeight())
+				- Integer.parseInt(weightSlipRequest.getTareWeight()));
+
+		ClassPathResource classPathResource = new ClassPathResource("WeightSlip.jrxml");
+		JasperReport jasperReport = JasperCompileManager.compileReport(classPathResource.getInputStream());
+		JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("address", weightSlipRequest.getAddress());
+		parameters.put("vehicleNumber", weightSlipRequest.getVehicleNumber());
+		parameters.put("grossWeight", weightSlipRequest.getGrossWeight());
+		parameters.put("tareWeight", weightSlipRequest.getTareWeight());
+		parameters.put("netWeight", netWeight);
+		parameters.put("grossWeightDate", formattedDate(weightSlipRequest.getGrossWeightDate()));
+		parameters.put("tareWeightDate", formattedDate(weightSlipRequest.getTareWeightDate()));
+		parameters.put("grossWeightTime", formattedTime(weightSlipRequest.getGrossWeightDate()));
+		parameters.put("tareWeightTime", formattedTime(weightSlipRequest.getTareWeightDate()));
+
+		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+        JRXlsxExporter exporter = new JRXlsxExporter();
+        SimpleXlsxReportConfiguration reportConfigXLS = new SimpleXlsxReportConfiguration();
+        reportConfigXLS.setSheetNames(new String[] { "sheet1" });
+        exporter.setConfiguration(reportConfigXLS);
+        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(response.getOutputStream()));
+        response.setHeader("Content-Disposition", "attachment;filename=jasperReport.xlsx");
+        response.setContentType("application/octet-stream");
+        exporter.exportReport();
+    }
 
 }
