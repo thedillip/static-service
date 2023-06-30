@@ -116,7 +116,7 @@ public class StaticController {
 		return new ResponseEntity<>(new ApiEntity<String>(message, response), httpHeaders, status);
 	}
 	
-	@Operation(summary = "Download Weight Slip in excel")
+	@Operation(summary = "Download Weight Slip in excel ")
 	@PostMapping(path = "/excel")
 	public void generateReportInExcel(
 			@Parameter(name = "in_weightSlipRequest", description = "WeightSlipRequest", required = true) @RequestBody WeightSlipRequest weightSlipRequest)
