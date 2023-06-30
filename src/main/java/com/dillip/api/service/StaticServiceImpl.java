@@ -34,6 +34,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
@@ -61,9 +62,13 @@ public class StaticServiceImpl implements StaticService {
 		String netWeight = String.valueOf(Integer.parseInt(weightSlipRequest.getGrossWeight())
 				- Integer.parseInt(weightSlipRequest.getTareWeight()));
 
-		ClassPathResource classPathResource = new ClassPathResource("WeightSlip.jrxml");
-		JasperReport jasperReport = JasperCompileManager.compileReport(classPathResource.getInputStream());
+		ClassPathResource classPathResource = new ClassPathResource("WeightSlip.jrxml"); // loading RAW file
+		ClassPathResource classPathResourceJasper = new ClassPathResource("WeightSlip.jasper"); // loading compiled file
+//		JasperReport jasperReport = JasperCompileManager.compileReport(classPathResource.getInputStream());
 		JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+		
+		JasperReport jasperReport = (JasperReport) JRLoader.loadObject(classPathResourceJasper.getFile());
+		
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("address", weightSlipRequest.getAddress());
 		parameters.put("vehicleNumber", weightSlipRequest.getVehicleNumber());
