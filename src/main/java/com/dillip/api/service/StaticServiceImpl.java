@@ -1,5 +1,6 @@
 package com.dillip.api.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +68,7 @@ public class StaticServiceImpl implements StaticService {
 //		JasperReport jasperReport = JasperCompileManager.compileReport(classPathResource.getInputStream());
 		JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
 		
-		JasperReport jasperReport = (JasperReport) JRLoader.loadObject(classPathResourceJasper.getFile());
+		JasperReport jasperReport = (JasperReport) JRLoader.loadObject(classPathResourceJasper.getInputStream());
 		
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("address", weightSlipRequest.getAddress());
