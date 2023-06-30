@@ -40,7 +40,7 @@ public class JobSchedulerComponent {
 				.grossWeight("40000").tareWeight("20000").grossWeightDate(LocalDateTime.now())
 				.tareWeightDate(LocalDateTime.now()).checked(false).build();
 		MediaFile exportReport = staticService.exportReport(weightSlipRequest);
-		log.info("########## Inside JobSchedulerComponent::callRenderStartApi :: CRON Job ##########");
+		log.info("########## Inside JobSchedulerComponent::call Railway Cloud API :: CRON Job ##########");
 		log.info("########## Response = {} ##########", body);
 		log.info("Export Report Response = {}", exportReport);
 	}
