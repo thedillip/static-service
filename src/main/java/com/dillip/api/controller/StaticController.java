@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.dillip.api.request.ContactDetails;
+import com.dillip.api.request.SendMessageRequest;
 import com.dillip.api.request.WeightSlipRequest;
 import com.dillip.api.response.ApiEntity;
 import com.dillip.api.response.ApiResponseObject;
 import com.dillip.api.response.MediaFile;
 import com.dillip.api.service.StaticService;
+import com.dillip.api.service.TwillioMessagingService;
 import com.dillip.api.util.StaticServiceConstant;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +33,14 @@ import net.sf.jasperreports.engine.JRException;
 @CrossOrigin
 @Slf4j
 public class StaticController {
-	
+
 	@Autowired
 	private StaticService staticService;
 	@Autowired
 	private HttpServletResponse response;
-	
+	@Autowired
+	private TwillioMessagingService twillioMessagingService;
+
 	@Operation(summary = "Welcome Message")
 	@GetMapping(path = "/")
 	public ResponseEntity<ApiResponseObject> startApi() {
@@ -60,7 +66,7 @@ public class StaticController {
 		}
 		return new ResponseEntity<>(new ApiEntity<String>(message, reMessage), httpHeaders, status);
 	}
-	
+
 	@Operation(summary = "Download Weight Slip in PDF")
 	@PostMapping(path = "/weightslip")
 	public ResponseEntity<ApiResponseObject> generateReport(
@@ -89,7 +95,7 @@ public class StaticController {
 		}
 		return new ResponseEntity<>(new ApiEntity<MediaFile>(message, response), httpHeaders, status);
 	}
-	
+
 	@Operation(summary = "Send Email")
 	@PostMapping(path = "/send-email")
 	public ResponseEntity<ApiResponseObject> sendEmail(@RequestBody ContactDetails contact) {
@@ -115,15 +121,15 @@ public class StaticController {
 		}
 		return new ResponseEntity<>(new ApiEntity<String>(message, response), httpHeaders, status);
 	}
-	
+
 	@Operation(summary = "Download Weight Slip in excel ")
 	@PostMapping(path = "/excel")
 	public void generateReportInExcel(
 			@Parameter(name = "in_weightSlipRequest", description = "WeightSlipRequest", required = true) @RequestBody WeightSlipRequest weightSlipRequest)
 			throws JRException, IOException {
-		
+
 		staticService.getDocument(weightSlipRequest, response);
-		
+
 //		HttpStatus status = null;
 //		HttpHeaders httpHeaders = new HttpHeaders();
 //		String message = null;
@@ -146,5 +152,26 @@ public class StaticController {
 //			status = HttpStatus.INTERNAL_SERVER_ERROR;
 //		}
 //		return new ResponseEntity<>(new ApiEntity<MediaFile>(message, response), httpHeaders, status);
+	}
+
+	@Operation(summary = "Send SMS to Mobile Number")
+	@PostMapping(path = "/send-message")
+	public ResponseEntity<ApiResponseObject> sendMeassage(@RequestBody final SendMessageRequest sendMessageRequest) {
+
+		HttpStatus status = null;
+		HttpHeaders httpHeaders = new HttpHeaders();
+		String message = null;
+		String response = null;
+		log.info("############# Hitting /send-message API in Controller Layer ###############");
+		try {
+			response = twillioMessagingService.sendMesssage(sendMessageRequest);
+			status = HttpStatus.CREATED;
+		} catch (Exception e) {
+			log.info("############# Exception Occured in /send-message in Controller Layer ##########" + e);
+			message = e.getMessage();
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+
+		return new ResponseEntity<>(new ApiEntity<>(message, response), httpHeaders, status);
 	}
 }

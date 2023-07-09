@@ -1,11 +1,11 @@
 spring:  mail:    host: smtp.gmail.com
     port: 587
-    username: thedillip1@gmail.com
-    password: ierosibqhhohxdaq
-    name: Dillip K Sahoo
+    username: ENC(FmdhHlekXtvADdXsFNdAGpmY4E8ETgfEE7dDfEaEG/8=)
+    password: ENC(eOS6D0+HNtnBMfpXttnZXQMeCtWvSnYIOL5pUJuRY6E=)
+    name: DILLIPFOLIO
     properties:
       mail:
         smtp:
           auth: true
           starttls:
-            enable: true
+            enable: true                        #Twillio Configuration Detailstwillio:  account:    sid: AC3bc4678897cf80dcb8d8954868e613b2    authToken: ENC(b4LDkvfjmC+9+hwt31vyKa5iq4N4Sga9QYxktLhkvG4vwD69+p7hDevtXFcxZs+f)    number: '+16187062724'

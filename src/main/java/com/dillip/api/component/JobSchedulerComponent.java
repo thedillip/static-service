@@ -34,7 +34,7 @@ public class JobSchedulerComponent {
 		HttpRequest httpRequest = HttpRequest.newBuilder().header("Content-Type", "application/json").GET()
 				.uri(URI.create("https://restapi-production-d89e.up.railway.app/")).build();
 
-		HttpResponse httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 		Object body = httpResponse.body();
 		WeightSlipRequest weightSlipRequest = WeightSlipRequest.builder().address("BOUDH").vehicleNumber("OD02AB8329")
 				.grossWeight("40000").tareWeight("20000").grossWeightDate(LocalDateTime.now())
@@ -42,6 +42,6 @@ public class JobSchedulerComponent {
 		MediaFile exportReport = staticService.exportReport(weightSlipRequest);
 		log.info("########## Inside JobSchedulerComponent::call Railway Cloud API :: CRON Job ##########");
 		log.info("########## Response = {} ##########", body);
-		log.info("Export Report Response = {}", exportReport);
+		log.info("Export Report Response = {}", exportReport.getFileName());
 	}
 }
