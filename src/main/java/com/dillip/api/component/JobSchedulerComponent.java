@@ -33,6 +33,6 @@ public class JobSchedulerComponent {
 				.build();
 
 		HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-		log.info("########## Response = {} ##########", httpResponse.body());
+		log.info("########## Response from render API = {} ##########", httpResponse.body());
 	}
 }
