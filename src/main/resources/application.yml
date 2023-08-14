@@ -8,4 +8,4 @@ spring:  mail:    host: smtp.gmail.com
         smtp:
           auth: true
           starttls:
-            enable: true                        #Twillio Configuration Detailstwillio:  account:    sid: AC3bc4678897cf80dcb8d8954868e613b2    authToken: ENC(b4LDkvfjmC+9+hwt31vyKa5iq4N4Sga9QYxktLhkvG4vwD69+p7hDevtXFcxZs+f)    number: '+16187062724'
+            enable: true                        #Twillio Configuration Detailstwillio:  account:    sid: AC3bc4678897cf80dcb8d8954868e613b2    authToken: ENC(b4LDkvfjmC+9+hwt31vyKa5iq4N4Sga9QYxktLhkvG4vwD69+p7hDevtXFcxZs+f)    number: '+16187062724'        render:  base:    url: https://dillipapi.onrender.com/
