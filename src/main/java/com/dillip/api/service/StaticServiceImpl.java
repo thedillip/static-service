@@ -1,6 +1,5 @@
 package com.dillip.api.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,12 +20,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import com.dillip.api.request.ContactDetails;
 import com.dillip.api.request.WeightSlipRequest;
 import com.dillip.api.response.MediaFile;
 import com.dillip.api.util.StaticServiceConstant;
+
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -43,19 +43,20 @@ import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 @Service
 @Slf4j
 public class StaticServiceImpl implements StaticService {
-	
+
 	@Autowired
 	private JavaMailSender mailSender;
 	@Value("${spring.mail.username}")
 	private String springMailUserName;
 	@Value("${spring.mail.name}")
 	private String springMailName;
-	
+
 	@Override
 	public MediaFile exportReport(WeightSlipRequest weightSlipRequest) throws JRException, IOException {
 		log.info("########## Hitting exportReport() method in ServiceImpl Layer ##########");
 
-		String fileName = "Weight Slip_" + weightSlipRequest.getVehicleNumber().toUpperCase() + "_" +LocalDateTime.now().toString() + ".pdf";
+		String fileName = "Weight Slip_" + weightSlipRequest.getVehicleNumber().toUpperCase() + "_"
+				+ LocalDateTime.now().toString() + ".pdf";
 
 		List<WeightSlipRequest> list = new ArrayList<>();
 		list.add(new WeightSlipRequest());
@@ -67,9 +68,9 @@ public class StaticServiceImpl implements StaticService {
 		ClassPathResource classPathResourceJasper = new ClassPathResource("WeightSlip.jasper"); // loading compiled file
 //		JasperReport jasperReport = JasperCompileManager.compileReport(classPathResource.getInputStream());
 		JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
-		
+
 		JasperReport jasperReport = (JasperReport) JRLoader.loadObject(classPathResourceJasper.getInputStream());
-		
+
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("address", weightSlipRequest.getAddress());
 		parameters.put("vehicleNumber", weightSlipRequest.getVehicleNumber());
@@ -83,7 +84,7 @@ public class StaticServiceImpl implements StaticService {
 
 		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 		byte[] data = JasperExportManager.exportReportToPdf(jasperPrint);
-		
+
 //		JasperExportManager
 
 		HttpHeaders headers = new HttpHeaders();
@@ -98,7 +99,7 @@ public class StaticServiceImpl implements StaticService {
 		log.info("########## Report Generated in PDF ......... ##########");
 		return mediaFile;
 	}
-	
+
 	public String formattedDate(LocalDateTime date) {
 		DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		return date.format(myFormatObj);
@@ -120,8 +121,8 @@ public class StaticServiceImpl implements StaticService {
 				+ "Thanks & Regards \nDillip K Sahoo\nContact Number :- +91 8117941692\nMailto:- thedillip1@gmail.com\nWebsite:- https://dillipfolio.web.app";
 
 		String subject = "Welcome to DillipFolio – Thanks for Visiting !!";
-		
-		log.info("########## Email Body ########## :: Email Content :: "+emailBody);
+
+		log.info("########## Email Body ########## :: Email Content :: " + emailBody);
 
 //		SimpleMailMessage message = new SimpleMailMessage();
 //
@@ -129,17 +130,17 @@ public class StaticServiceImpl implements StaticService {
 //		message.setTo(contact.getEmail());
 //		message.setText(emailBody);
 //		message.setSubject(subject);
-		
+
 		MimeMessagePreparator preparator = (mimeMessage) -> {
-	        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-	        helper.setFrom(new InternetAddress(springMailUserName, springMailName));
-	        helper.setTo(contact.getEmail());
-	        helper.setSubject(subject);
-	        helper.setText(emailBody, false);
-	    };   
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+			helper.setFrom(new InternetAddress(springMailUserName, springMailName));
+			helper.setTo(contact.getEmail());
+			helper.setSubject(subject);
+			helper.setText(emailBody, false);
+		};
 
 //		mailSender.send(message);
-	    mailSender.send(preparator);
+		mailSender.send(preparator);
 
 		log.info("########## Mail has been send Successfully :: SUCCESS ##########");
 
@@ -157,12 +158,13 @@ public class StaticServiceImpl implements StaticService {
 		log.info("########## API has been Started :: Status :: UP :: SUCCESS ##########");
 		return StaticServiceConstant.SUCCESS_MSG;
 	}
-	
-	
-	public void getDocument(WeightSlipRequest weightSlipRequest, HttpServletResponse response) throws IOException, JRException {
+
+	public void getDocument(WeightSlipRequest weightSlipRequest, HttpServletResponse response)
+			throws IOException, JRException {
 		log.info("########## Hitting exportReport() method in ServiceImpl Layer ##########");
 
-		String fileName = "Weight Slip_" + weightSlipRequest.getVehicleNumber().toUpperCase() + "_" +LocalDateTime.now().toString() + ".pdf";
+		String fileName = "Weight Slip_" + weightSlipRequest.getVehicleNumber().toUpperCase() + "_"
+				+ LocalDateTime.now().toString() + ".pdf";
 
 		List<WeightSlipRequest> list = new ArrayList<>();
 		list.add(new WeightSlipRequest());
@@ -185,15 +187,15 @@ public class StaticServiceImpl implements StaticService {
 		parameters.put("tareWeightTime", formattedTime(weightSlipRequest.getTareWeightDate()));
 
 		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-        JRXlsxExporter exporter = new JRXlsxExporter();
-        SimpleXlsxReportConfiguration reportConfigXLS = new SimpleXlsxReportConfiguration();
-        reportConfigXLS.setSheetNames(new String[] { "sheet1" });
-        exporter.setConfiguration(reportConfigXLS);
-        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(response.getOutputStream()));
-        response.setHeader("Content-Disposition", "attachment;filename=jasperReport.xlsx");
-        response.setContentType("application/octet-stream");
-        exporter.exportReport();
-    }
+		JRXlsxExporter exporter = new JRXlsxExporter();
+		SimpleXlsxReportConfiguration reportConfigXLS = new SimpleXlsxReportConfiguration();
+		reportConfigXLS.setSheetNames(new String[] { "sheet1" });
+		exporter.setConfiguration(reportConfigXLS);
+		exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+		exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(response.getOutputStream()));
+		response.setHeader("Content-Disposition", "attachment;filename=jasperReport.xlsx");
+		response.setContentType("application/octet-stream");
+		exporter.exportReport();
+	}
 
 }

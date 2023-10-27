@@ -25,7 +25,7 @@ public class JobSchedulerComponent {
 	@Value("${render.base.url}")
 	private String renderBaseUrl;
 
-	@Scheduled(cron = "0 * * * * *")
+//	@Scheduled(cron = "0 * * * * *")
 	public void callRenderStartApi() throws IOException, InterruptedException {
 		log.info("Running Scheduler -- JobSchedulerComponent::callRenderStartApi()");
 		HttpRequest httpRequest = HttpRequest.newBuilder()
