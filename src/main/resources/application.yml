@@ -21,6 +21,6 @@ twillio:
     number: '+16187062724'
     
     
-# render:
-#   base:
-#     url: https://dillipapi.onrender.com/
+render:
+  base:
+    url: https://dillipapi.onrender.com/
