@@ -1,6 +1,8 @@
 package com.dillip.api.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dillip.api.request.ContactDetails;
@@ -24,6 +27,9 @@ import com.dillip.api.response.MediaFile;
 import com.dillip.api.service.StaticService;
 import com.dillip.api.service.TwillioMessagingService;
 import com.dillip.api.util.StaticServiceConstant;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +50,12 @@ public class StaticController {
 
 	@Value("${render.base.key}")
 	private String key;
+
+	@Value("${stripe.success.url}")
+	private String successUrl;
+
+	@Value("${stripe.cancel.url}")
+	private String cancelUrl;
 
 	@Operation(summary = "Welcome Message")
 	@GetMapping(path = "/")
@@ -183,5 +195,46 @@ public class StaticController {
 	public ResponseEntity<String> test() {
 		log.info("########## Key = {} ##########", key);
 		return ResponseEntity.ok(key);
+	}
+
+	@PostMapping(value = "/stripe/create-checkout-session")
+	public Map<String, String> createCheckoutSession(@RequestBody Map<String, Object> data) throws StripeException {
+		Long amount = Long.parseLong(data.get("amount").toString()); // in cents (e.g., 5000 = $50)
+
+		SessionCreateParams params = SessionCreateParams.builder().setMode(SessionCreateParams.Mode.PAYMENT)
+				.setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}").setCancelUrl(
+						cancelUrl)
+				.addLineItem(
+						SessionCreateParams.LineItem.builder().setQuantity(1L)
+								.setPriceData(
+										SessionCreateParams.LineItem.PriceData.builder().setCurrency("usd")
+												.setUnitAmount(amount)
+												.setProductData(SessionCreateParams.LineItem.PriceData.ProductData
+														.builder().setName("Sample Product").build())
+												.build())
+								.build())
+				.build();
+
+		Session session = Session.create(params);
+
+		Map<String, String> response = new HashMap<>();
+		response.put("checkoutUrl", session.getUrl());
+		return response;
+	}
+
+	@GetMapping(value = "/payment/success")
+	public String paymentSuccess(@RequestParam(name = "session_id") String sessionId) {
+		return "Payment Success! Session ID: " + sessionId;
+	}
+
+	@GetMapping(value = "/payment/cancel")
+	public String paymentCancel() {
+		return "Payment Canceled!";
+	}
+
+	@PostMapping(value = "/webhook/stripe-events")
+	public ResponseEntity<String> handleWebhook(@RequestBody String payload) {
+		log.info("Received raw Stripe event: {}", payload);
+		return ResponseEntity.ok("Webhook received");
 	}
 }

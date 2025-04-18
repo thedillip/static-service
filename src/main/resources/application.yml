@@ -25,3 +25,11 @@ render:
   base:
     url: https://dillipapi.onrender.com/
     key: ${api.key}
+    
+stripe:
+  api:
+    key: ${stripe.api.key}
+  success:
+    url: ${stripe.success.url}
+  cancel:
+    url: ${stripe.cancel.url}
