@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,9 @@ public class StaticController {
 	private HttpServletResponse response;
 	@Autowired
 	private TwillioMessagingService twillioMessagingService;
+
+	@Value("${render.base.key}")
+	private String key;
 
 	@Operation(summary = "Welcome Message")
 	@GetMapping(path = "/")
@@ -173,5 +177,11 @@ public class StaticController {
 		}
 
 		return new ResponseEntity<>(new ApiEntity<>(message, response), httpHeaders, status);
+	}
+
+	@GetMapping(value = "/test")
+	public ResponseEntity<String> test() {
+		log.info("########## Key = {} ##########", key);
+		return ResponseEntity.ok(key);
 	}
 }
